@@ -46,7 +46,7 @@ myTerminal      = "termite"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
-myFocusFollowsMouse = True
+myFocusFollowsMouse = False -- I like "True" but messes with "unclutter"
 
 -- Whether clicking on a window to focus also passes the click to the window
 myClickJustFocuses :: Bool
@@ -256,7 +256,7 @@ myStartupHook = do
   spawnOnce "hsetroot -fill \"/home/hamza/pix/wallpapers/gruvbox-blocky-colourful-waveform.png\" &"
 
   -- Keyboard go brrrrrrrrrrr
-  spawnOnce "sh ~/.xprofile"
+  spawnOnce "sh /home/hamza/.xmodmap"
 
   -- Transparency
   spawnOnce "picom &"
@@ -480,7 +480,7 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
 -- Run xmonad with the settings you specify. No need to modify this.
 --
 main = do
-  xmproc <- spawnPipe "xmobar -x 0 /home/hamza/.config/xmobar/xmobarrc"
+  xmproc <- spawnPipe "xmobar -x 0 /home/hamza/.xmonad/xmobar/xmobarrc"
   xmonad $ docks defaults
     { --layoutHook = avoidStruts  $  layoutHook defaultConfig,
     logHook = dynamicLogWithPP xmobarPP

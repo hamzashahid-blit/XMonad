@@ -1,0 +1,81 @@
+-- Help & config made by "hamzashahid-blit" on GitHub
+
+-- ;; Format ;; --
+-- First is Run, then the module name.
+-- There are the arguments to that module.
+-- Then in brackets, The "styling" and what it considers is a high/low/normal level etc.
+-- The last number is how many times to run this command in 1/10 of a second so 1 second = run 10 times.
+
+-- ;; Custom Commands ;; --
+-- We use Com instead of the module name.
+-- Then the command (it could also be running a script, remember it's a shell command).
+-- Then in the brackets, inside double quotes, put the flags for that command.
+
+Config { font = "xft:Mononoki:pixelsize=15:antialias=true"
+       , additionalFonts = [ "xft:FontAwesome:pixelsize=17:antialias=true"
+	   	 				   , "xft:Mononoki:pixelsize=15:antialias=true" ]
+       , borderColor = "#7c6f64"
+       , border = BottomB
+       , bgColor = "#282828"
+       , fgColor = "#ebdbb2"
+       , alpha = 255
+       --, position = Top
+	   , position = TopW L 98
+       , textOffset = -1
+       , iconOffset = -1
+       , lowerOnStart = True
+       , pickBroadest = False
+       , persistent = False
+       , iconRoot = "/home/hamza/.xmonad/xpm/" -- default "."
+       , hideOnStart = False
+       , allDesktops = True
+       , overrideRedirect = True
+
+       , commands = [ Run Weather "OPKC" ["-t","<fn=1>\xf0c2</fn> <tempC>°C",
+                                          "-L","18","-H","25",
+                                          "--normal","#b8bb26",
+                                          "--high","#fb4934",
+                                          "--low","#83a598"] 3600
+
+                    , Run Network "enp8s0" ["-t", "<fn=1>\xf0aa</fn> <rx>kb <fn=1>\xf0ab</fn> <tx>kb"
+		      	  	  	   		  		   ,"-S","False" --Adaptive Rates (turn into bytes and kilobytes depending)
+		      	  	  	   				   ,"-L","10240","-H","32768" -- numbers are in bytes (-H is 32KB)
+
+					   	   				   ,"--low","#b8bb26"         -- Green
+                           				   ,"--normal","#d3869b"      -- Purple
+					   	   				   ,"--high","#fb4934"	] 10  -- Red
+
+                    , Run Cpu ["-L","20","-H","75"
+					          ,"-t","<icon=cpu_dark_20_smaller.xbm/> <total>%"
+                              ,"--low","#b8bb26"	     -- Green
+			      			  ,"--normal","#d3869b"      -- Purple
+			      			  ,"--high","#fb4934"  ] 10  -- Red
+
+                    , Run Memory ["-L","35","-H","75"
+					  	  		 ,"-t","<icon=ram.xbm/> <usedratio>%"
+								 ,"--low","#b8bb26"		    -- Green
+			      				 ,"--normal","#d3869b"      -- Purple
+			      				 ,"--high","#fb4934"  ] 10  -- Red
+
+                    , Run Swap ["-L","35","-H","75"
+					  	  	   ,"-t","<usedratio>%"
+							   ,"--low","#b8bb26"		  -- Green
+			      			   ,"--normal","#d3869b"      -- Purple
+			      			   ,"--high","#fb4934"  ] 10  -- Red
+
+                    , Run Com "uname" ["-s","-r"] "" 36000
+
+                    , Run Date "<fn=1>\xf073</fn> %b %_d, %a (%Y)" "date" 10  
+                    , Run Date "<fn=1>\xf017</fn> %_I:%M %p :%S" "time" 10 
+
+					-- To Allow Clicking of the mouse (make sure to change xmonad config too)
+					-- The default is StdinReader which doesn't allow clicking of the mouse
+					, Run StdinReader
+					--, Run UnsafeStdinReader
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%UnsafeStdinReader% }{ %cpu% | %memory% * %swap% | %wlp4s0% | %OPKC% | <fc=#fe8019>%time%</fc> | <fc=#fe8019>%date%</fc>"
+       -- , template = "%UnsafeStdinReader% | %cpu% | %memory% * %swap% | %wlp4s0% }\
+       --	 	  \{ %OPKC% | <fc=#fe8019>%date%</fc> <icon=processor_dark_24.xpm> | <fc=#fe8019>%time%</fc> "
+}
