@@ -31,18 +31,22 @@ import XMonad.Actions.SpawnOn
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.ToggleHook
 
 -- Layouts
 import XMonad.Layout.Gaps
 import XMonad.Layout.NoBorders
 --import XMonad.Layout.MultiToggle
 
+-- Other
+import Control.Concurrent
 
 
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal      = "termite"
+myTerminal = "alacritty"
+myBrowser  = "librewolf"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -211,9 +215,22 @@ myLayoutHook = avoidStruts $ smartBorders $ tiled ||| Mirror tiled ||| Full
 --     , resource  =? "kdesktop"       --> doIgnore ] <+> namedScratchpadManageHook myScratchPads
 
 myManageHook = composeAll
-    [ className =? "Gimp"           --> doFloat]
+    [ className =? "Gimp"      --> doFloat]
         <+> namedScratchpadManageHook myScratchPads
-        -- <+> manageSpawn
+		-- <+> toggleHook "startup"
+		-- 	  (composeAll
+        --         [ className =? "Emacs"					  --> doShift "1"
+		-- 		, className =? "LibreWolf"				  --> doShift "2"
+		-- 		, className =? ".gtk-pipe-viewer-wrapped" --> doShift "9"])
+		-- <+> myStartupToggleHook
+		-- <+> toggleHook "shiftTo9" (doShift "9")
+		-- <+> toggleHook "shiftTo2" (doShift "2")
+		-- <+> toggleHook "shiftTo1" (doShift "1")
+
+myStartupToggleHook = composeAll
+	[ className =? "Emacs"					  --> doShift "1"
+    , className =? "LibreWolf"				  --> doShift "2"
+    , className =? ".gtk-pipe-viewer-wrapped" --> doShift "9"]
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -241,10 +258,10 @@ myLogHook = return()
 
 spawnToWorkspace :: String -> String -> X ()
 spawnToWorkspace workspace program = do
-  spawn program
   windows $ W.greedyView workspace
+  spawnOn workspace program
+  -- windows $ W.greedyView "1"
 
--- Perform an arbitrary action each time xmonad starts or is restarted
 -- with mod-q.  Used by, e.g., XMonad.Layout.PerWorkspace to initialize
 -- per-workspace layout choices.
 --
@@ -253,34 +270,62 @@ myStartupHook :: X ()
 myStartupHook = do
   -- Set Background
   --sawnOnce "hsetroot -solid \"#283927\" &"
-  spawnOnce "hsetroot -fill \"/home/hamza/pix/wallpapers/gruvbox-blocky-colourful-waveform.png\" &"
+  spawnOnce "hsetroot -fill \"/home/hamza/pix/walls/gruvbox-linux.jpg\" &"
 
   -- Keyboard go brrrrrrrrrrr
   spawnOnce "sh /home/hamza/.xmodmap"
 
   -- Transparency
-  spawnOnce "picom &"
+  -- spawnOnce "picom &"
 
   -- Hide mouse on no movement
-  spawnOnce "unclutter &"
+  -- spawnOnce "unclutter &"
 
   -- Emacs :D
-  -- spawnOnce "emacs --daemon"
+  --spawnOnce "emacs --daemon"
 
   -- -- Emacs :D
-  spawnToWorkspace "1:1" "emacs --daemon && emacsclient -c &"
+  --spawnToWorkspace "1:1" "emacs --daemon && emacsclient -c &"
+  -- spawnToWorkspace "1" "emacs --daemon && emacsclient -c &"
   -- -- Common Lisp Browser ;)
-  spawnToWorkspace "2:2" "nyxt &"
+  -- spawnToWorkspace "2:2" "nyxt &"
+  -- spawnOn "2" myBrowser -- (myBrowser ++ " &")
+  -- spawnToWorkspace "2" myBrowser -- (myBrowser ++ " &")
+  -- hookNext myBrowser (doShift "6")
+
+  -- io $ threadDelay 250000
+
+  -- hookAllNew "startup" True
+  
+  -- io $ threadDelay 250000
+  --hookNext "shiftTo2" True >> spawn myBrowser
+  spawnOn "2" myBrowser
+
+  io $ threadDelay 250000
+
   -- -- Need Help (SOS)
-  spawnToWorkspace "8:8" (myTerminal ++ " -e gomuks &")
+  -- spawnToWorkspace "8:8" (myTerminal ++ " -e gomuks &")
   -- -- gotta watch youtube ^.^
-  spawnToWorkspace "9:9" "gtk-pipe-viewer &"
+  -- spawnToWorkspace "9" "gtk-pipe-viewer &"
+
+  -- hookNext "shiftTo9" True >> spawn "gtk-pipe-viewer"
+  spawnOn "9" "gtk-pipe-viewer"
+
+  -- Keep everything from trying to happen at once.
+  -- io $ threadDelay 250000
+  -- io $ threadDelay 250000
+
+  -- hookAllNew "startup" False
+  -- io $ threadDelay 250000
+  
+  -- hookNext "shiftTo1" True
+  -- spawn "emacs --daemon && emacsclient -c"
 
   -- X Screen Saver... Very cool
-  spawnOnce "xscreensaver -no-splash &"
+  -- spawnOnce "xscreensaver -no-splash &"
 
   -- Draw on the Screen!
-  spawnOnce "gromit-mpx &"
+  -- spawnOnce "gromit-mpx &"
 
   -- slock (Suckless X Display Locker) auto-run after some minutes idle
   --spawnOnce "xautolock -time 1 -locker slock"
@@ -376,7 +421,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Hamza's Custom Keybindings
 
-    , ((modm .|. shiftMask, xK_w),                      spawn "nyxt")
+    , ((modm .|. shiftMask, xK_w),                      spawn myBrowser)
     , ((modm .|. shiftMask, xK_e),                      spawn "emacsclient -c")
     , ((modm .|. shiftMask, xK_g),                      spawn "gimp")
     , ((modm .|. shiftMask, xK_y),                      spawn "gtk-pipe-viewer")
@@ -385,8 +430,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_f),                      spawn "dmenufm")
 
     -- scrotting
-    , ((0, xK_Print),                   spawn "scrot ~/pix/screenshots/%b%d::%H:%M:%S.png")
-    , ((controlMask, xK_Print),         spawn "sleep 0.2; scrot -s ~/pix/screenshots/%b%d::%H:%M:%S.png")
+    , ((0, xK_Print),                   spawn "scrot ~/pix/scrots/%b%d::%H:%M:%S.png")
+    , ((controlMask, xK_Print),         spawn "sleep 0.2; scrot -s ~/pix/scrots/%b%d::%H:%M:%S.png")
 
     -- a basic CycleWS setup
 

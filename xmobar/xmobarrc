@@ -45,6 +45,7 @@ Config { font = "xft:Mononoki:pixelsize=15:antialias=true"
                            				   ,"--normal","#d3869b"      -- Purple
 					   	   				   ,"--high","#fb4934"	] 10  -- Red
 
+
                     , Run Cpu ["-L","20","-H","75"
 					          ,"-t","<icon=cpu_dark_20_smaller.xbm/> <total>%"
                               ,"--low","#b8bb26"	     -- Green
@@ -71,11 +72,11 @@ Config { font = "xft:Mononoki:pixelsize=15:antialias=true"
 					-- To Allow Clicking of the mouse (make sure to change xmonad config too)
 					-- The default is StdinReader which doesn't allow clicking of the mouse
 					, Run StdinReader
-					--, Run UnsafeStdinReader
+					-- , Run UnsafeStdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%UnsafeStdinReader% }{ %cpu% | %memory% * %swap% | %wlp4s0% | %OPKC% | <fc=#fe8019>%time%</fc> | <fc=#fe8019>%date%</fc>"
+       , template = "%StdinReader% }{ %cpu% | %memory% * %swap% | %enp8s0% | %OPKC% | <fc=#fe8019>%time%</fc> | <fc=#fe8019>%date%</fc>"
        -- , template = "%UnsafeStdinReader% | %cpu% | %memory% * %swap% | %wlp4s0% }\
        --	 	  \{ %OPKC% | <fc=#fe8019>%date%</fc> <icon=processor_dark_24.xpm> | <fc=#fe8019>%time%</fc> "
 }
