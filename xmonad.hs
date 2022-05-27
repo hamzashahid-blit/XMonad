@@ -158,7 +158,9 @@ myScratchPads = [ NS "terminal" spawnTerm findTerm manageTerm
                  t = 0.85 -h
                  l = 0.75 -w
 
-
+spawnNews :: String -> X ()
+spawnNews url = do
+	spawn $ "mpv --ytdl-raw-options=format-sort='res:1080' " ++ url
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -215,7 +217,8 @@ myLayoutHook = avoidStruts $ smartBorders $ tiled ||| Mirror tiled ||| Full
 --     , resource  =? "kdesktop"       --> doIgnore ] <+> namedScratchpadManageHook myScratchPads
 
 myManageHook = composeAll
-    [ className =? "Gimp"      --> doFloat]
+    [ className =? "Gimp"      --> doFloat
+	, className =? "sbcl"      --> doFloat ]
         <+> namedScratchpadManageHook myScratchPads
 		-- <+> toggleHook "startup"
 		-- 	  (composeAll
@@ -270,13 +273,13 @@ myStartupHook :: X ()
 myStartupHook = do
   -- Set Background
   --sawnOnce "hsetroot -solid \"#283927\" &"
-  spawnOnce "hsetroot -fill \"/home/hamza/pix/walls/gruvbox-linux.jpg\" &"
+  spawnOnce "hsetroot -fill \"/home/hamza/pix/walls/nix-gruvbox.png\" &"
 
   -- Keyboard go brrrrrrrrrrr
   spawnOnce "sh /home/hamza/.xmodmap"
 
   -- Transparency
-  -- spawnOnce "picom &"
+  spawnOnce "picom &"
 
   -- Hide mouse on no movement
   -- spawnOnce "unclutter &"
@@ -286,14 +289,16 @@ myStartupHook = do
 
   -- -- Emacs :D
   --spawnToWorkspace "1:1" "emacs --daemon && emacsclient -c &"
-  -- spawnToWorkspace "1" "emacs --daemon && emacsclient -c &"
+
+  spawnOn "1" "emacs --daemon && emacsclient -c &"
+
   -- -- Common Lisp Browser ;)
   -- spawnToWorkspace "2:2" "nyxt &"
   -- spawnOn "2" myBrowser -- (myBrowser ++ " &")
   -- spawnToWorkspace "2" myBrowser -- (myBrowser ++ " &")
   -- hookNext myBrowser (doShift "6")
 
-  -- io $ threadDelay 250000
+  io $ threadDelay 250000
 
   -- hookAllNew "startup" True
   
@@ -301,7 +306,7 @@ myStartupHook = do
   --hookNext "shiftTo2" True >> spawn myBrowser
   spawnOn "2" myBrowser
 
-  io $ threadDelay 250000
+  -- io $ threadDelay 250000
 
   -- -- Need Help (SOS)
   -- spawnToWorkspace "8:8" (myTerminal ++ " -e gomuks &")
@@ -309,7 +314,7 @@ myStartupHook = do
   -- spawnToWorkspace "9" "gtk-pipe-viewer &"
 
   -- hookNext "shiftTo9" True >> spawn "gtk-pipe-viewer"
-  spawnOn "9" "gtk-pipe-viewer"
+  -- spawnOn "9" "gtk-pipe-viewer"
 
   -- Keep everything from trying to happen at once.
   -- io $ threadDelay 250000
@@ -328,10 +333,10 @@ myStartupHook = do
   -- spawnOnce "gromit-mpx &"
 
   -- slock (Suckless X Display Locker) auto-run after some minutes idle
-  --spawnOnce "xautolock -time 1 -locker slock"
+  -- spawnOnce "xautolock -time 1 -locker slock"
 
 ------------------------------------------------------------------------
--- Key bindings. Add, modify or remove key bindings here.
+-- key bindings. Add, modify or remove key bindings here.
 --
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
@@ -421,13 +426,14 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Hamza's Custom Keybindings
 
-    , ((modm .|. shiftMask, xK_w),                      spawn myBrowser)
-    , ((modm .|. shiftMask, xK_e),                      spawn "emacsclient -c")
-    , ((modm .|. shiftMask, xK_g),                      spawn "gimp")
-    , ((modm .|. shiftMask, xK_y),                      spawn "gtk-pipe-viewer")
-    , ((modm .|. shiftMask, xK_l),                      spawn "slock")
-    , ((modm .|. controlMask .|. shiftMask, xK_h),      spawn "zzz")
-    , ((modm .|. shiftMask, xK_f),                      spawn "dmenufm")
+    , ((modm .|. shiftMask, xK_w),                 spawn myBrowser)
+    , ((modm .|. shiftMask, xK_e),                 spawn "emacsclient -c")
+    , ((modm .|. shiftMask, xK_g),                 spawn "gimp")
+    , ((modm .|. shiftMask, xK_y),                 spawn "gtk-pipe-viewer")
+    , ((modm .|. shiftMask, xK_a),                 spawnNews "https://www.youtube.com/watch?v=38IEolI8f-w")
+    , ((modm .|. shiftMask, xK_l),                 spawn "slock")
+    , ((modm .|. controlMask .|. shiftMask, xK_h), spawn "zzz")
+    , ((modm .|. shiftMask, xK_f),                 spawn "dmenufm")
 
     -- scrotting
     , ((0, xK_Print),                   spawn "scrot ~/pix/scrots/%b%d::%H:%M:%S.png")
